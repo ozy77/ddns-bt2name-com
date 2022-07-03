@@ -1,2 +1,2 @@
 # ddns-bt2name-com
-Update DNS records with BT Hub external IP address
+Update Name.com DNS records of your domain with BT Hub external IP address.
