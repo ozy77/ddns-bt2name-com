@@ -52,8 +52,7 @@ def update_dns_record(domain, host, ip, record_id):
     if payload != get_record(domain, record_id):
         logging.warning('Updating Existing Record with %s', payload)
         rq.put(
-            f"{API_ENDPOINT}/v4/domains/{domain}/records
-/{record_id}",
+            f"{API_ENDPOINT}/v4/domains/{domain}/records/{record_id}",
             headers=headers,
             data=json.dumps(payload),
             auth=(API_UN,API_TOKEN)
