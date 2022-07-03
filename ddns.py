@@ -1,11 +1,12 @@
+import argparse
+import json
+import logging
+import os
+import re
+from urllib import parse
+
 import requests as rq
 from bs4 import BeautifulSoup
-import json
-from urllib import parse
-import os, re
-import argparse
-import logging
-
 
 BT_HOME_IP = '192.168.1.254'
 API_TOKEN = os.environ['NAMECOM_API_TOKEN']
