@@ -20,11 +20,14 @@ def parse_wan_conn(raw):
     return dict(zip(['exteral_ip', 'mask','default_gateway','primary_dns', 'secondary_dns'], d[0]))
 
 def get_bt_ip():
-    res = rq.get(f"http://{BT_HOME_IP}/nonAuth/wan_conn.xml")
+    res = rq.get(f"http://{BT_HOME_IP}/nonAuth/wan_conn.xml", headers={'Referer':'http://192.168.1.254/broadband.htm'})
     soup = BeautifulSoup(res.text, "html.parser")
     ipv4_data = parse_wan_conn(soup.ip4_info_list['value'])
     logging.info('Current External IP:  %s', ipv4_data['exteral_ip'])
     return ipv4_data['exteral_ip']
+
+def get_public_ip():
+    return rq.get("https://api.ipify.org/?format=json").json()['ip']
 
 def get_all_domains():
     return rq.get(f'{API_ENDPOINT}/v4/domains', auth=(API_UN,API_TOKEN)).json()['domains']
@@ -71,8 +74,14 @@ def handle_dns_records(data, ip):
             logging.warning('No record found for "%s.%s", Creating new record.', host, data['domain'])
             create_dns_record(data['domain'], host, ip)
 
+
+
 def main():
-    ip = get_bt_ip()
+    try:
+        ip = get_bt_ip()
+    except Exception as e:
+        logging.error(e)
+        ip = get_public_ip()
     all_domains = get_all_domains()
     for data in data_list:
         if data['domain'] in [d['domainName'] for d in all_domains]:
