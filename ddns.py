@@ -37,7 +37,7 @@ def get_all_records(domain):
 
 def get_record(domain, record_id):
     res = rq.get(f'{API_ENDPOINT}/v4/domains/{domain}/records/{record_id}', auth=(API_UN,API_TOKEN)).json()
-    return {'host': res['host'], 'type': res['type'], 'answer': res['answer'], 'ttl': res['ttl']}
+    return {'host': res.get('host','@'), 'type': res['type'], 'answer': res['answer'], 'ttl': res['ttl']}
 
 def create_dns_record(domain, host, ip):
     headers={'Content-Type': 'application/json'}
@@ -65,9 +65,10 @@ def update_dns_record(domain, host, ip, record_id):
 
 def handle_dns_records(data, ip):
     records = get_all_records(data['domain'])
+    logging.info(records)
     for host in data['hosts']:
-        if host in [d['host'] for d in records if d['type'] == 'A']:
-            record = next(d for d in records if d['type'] == 'A' and d['host'] == host)
+        if host in [d.get('host','@') for d in records if d['type'] == 'A']:
+            record = next(d for d in records if d['type'] == 'A' and d.get('host','@') == host)
             logging.info('Existing records found for "%s"', record['fqdn'])
             update_dns_record(data['domain'], host, ip, record['id'])
         else:
